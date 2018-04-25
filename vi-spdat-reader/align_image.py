@@ -12,8 +12,8 @@ import numpy as np
 MAX_FEATURES = 500
 GOOD_MATCH_PERCENT = 0.15
 
-def align_images(image1, image2):
-    """Takes two images and returns homography and corrected image"""
+def align_image(image1, image2):
+    """Takes two images, returns homography and corrected image"""
     # convert images to grayscale
     gray_image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
     gray_image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
@@ -24,25 +24,24 @@ def align_images(image1, image2):
     keypoints2, descriptors2 = orb.detectAndCompute(gray_image2, None)
     
     # match features
-    matcher = cv2.DescriptorMatcher_create
-    (cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
+    matcher = cv2.DescriptorMatcher_create('BruteForce-Hamming')
     matches = matcher.match(descriptors1, descriptors2, None)
 
     # sort matches by score
     matches.sort(key=lambda x: x.distance, reverse=False)
     
     # remove poor matches
-    numGoodMatches = int(len(matches) * GOOD_MATCH_PERCENT)
-    matches = matches[:numGoodMatches]
+    num_good_matches = int(len(matches) * GOOD_MATCH_PERCENT)
+    matches = matches[:num_good_matches]
     
     # draw top matches
-    imMatches = cv2.drawMatches(image1, keypoints1, image2,
+    image_matches = cv2.drawMatches(image1, keypoints1, image2,
                                 keypoints2, matches, None)
-    cv2.imwrite('matches.jpg', imMatches)
+    cv2.imwrite('matches.jpg', image_matches)
     
     # extract location of good matches
-    points1 = np.zeroes((len(matches), 2), dtype=np.float32)
-    points2 = np.zeroes((len(matches), 2), dtype=np.float32)
+    points1 = np.zeros((len(matches), 2), dtype=np.float32)
+    points2 = np.zeros((len(matches), 2), dtype=np.float32)
     
     for i, match in enumerate(matches):
         points1[i, :] = keypoints1[match.queryIdx].pt
@@ -53,8 +52,27 @@ def align_images(image1, image2):
     
     # use homography
     height, width, channels = image2.shape
-    im1Reg = cv2.warpPerspective(image1, h, (width, height))
+    registered_image = cv2.warpPerspective(image1, h, (width, height))
     
-    return im1Reg, h
-
+    return registered_image, h
     
+if __name__ == '__main__':
+    
+    # read reference image
+    reference_filename = 'page1.jpg'
+    reference_image = cv2.imread(reference_filename, cv2.IMREAD_COLOR)
+    
+    # read image to be aligned
+    imperfect_filename = 'tilted_image1.jpg'
+    imperfect_image = cv2.imread(imperfect_filename, cv2.IMREAD_COLOR)
+    
+    # get aligned image and homography
+    aligned_image, h = align_image(imperfect_image, reference_image)
+    
+    # write aligned image to disk
+    outfile = 'aligned.jpg'
+    cv2.imwrite(outfile, aligned_image)
+    
+    # print estimated homography
+    print('Estimated homography: {}'.format(h))
+        
