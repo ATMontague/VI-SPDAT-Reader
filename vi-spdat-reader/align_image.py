@@ -54,7 +54,7 @@ def align_image(image1, image2):
     height, width, channels = image2.shape
     registered_image = cv2.warpPerspective(image1, h, (width, height))
     
-    return registered_image, h     
+    return registered_image, h
     
 if __name__ == '__main__':
     
