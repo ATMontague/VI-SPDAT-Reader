@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Created on Tue Apr 24 18:54:06 2018
 
 @author: atmon
 """
-
+# from tutorial
+# https://www.learnopencv.com/image-alignment-feature-based-using-opencv-c-python/
 from __future__ import print_function
 import cv2
 import numpy as np
@@ -54,7 +54,7 @@ def align_image(image1, image2):
     height, width, channels = image2.shape
     registered_image = cv2.warpPerspective(image1, h, (width, height))
     
-    return registered_image, h
+    return registered_image, h     
     
 if __name__ == '__main__':
     
@@ -75,4 +75,3 @@ if __name__ == '__main__':
     
     # print estimated homography
     print('Estimated homography: {}'.format(h))
-        
