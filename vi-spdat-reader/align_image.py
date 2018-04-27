@@ -8,6 +8,7 @@ Created on Tue Apr 24 18:54:06 2018
 from __future__ import print_function
 import cv2
 import numpy as np
+from wand.image import Image
 
 MAX_FEATURES = 500
 GOOD_MATCH_PERCENT = 0.15
@@ -56,6 +57,20 @@ def align_image(image1, image2):
     
     return registered_image, h
     
+def convert_to_image(fname):
+    """Receives pdf and returns png"""
+    
+    # only handling pdf for now
+    if not fname.lower().endswith('.pdf'):
+        return None
+    with Image(filename=fname, resolution=300) as img:
+        # converting to png
+        # looks into weird pdf error
+        img.format = 'png'
+        img.alpha_channel = 'remove'
+        img.save(filename='test.png')
+    
+    
 if __name__ == '__main__':
     
     # read reference image
@@ -75,3 +90,9 @@ if __name__ == '__main__':
     
     # print estimated homography
     print('Estimated homography: {}'.format(h))
+    
+    # testing converting pdf to png
+    print("Converting to png")
+    pdf = 'page1.pdf'
+    convert_to_image(pdf)
+    print('Done')
